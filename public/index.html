@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fotografia</title>
+  <meta name="description" content="Fotografia de eventos">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="hero" id="hero">
+    <h1 class="fade-in" id="h-name"></h1>
+    <p class="tag caps fade-in" id="h-tag"></p>
+    <p class="line fade-in" id="h-line"></p>
+    <a class="btn fade-in" href="/fotos">Ver fotos</a>
+    <div class="hero-foot" data-site-foot></div>
+  </main>
+  <script type="module">
+    import { api } from '/js/common.js';
+    import { initSite } from '/js/site.js';
+    const site = await initSite('inicio', { overlay: true });
+    document.title = site.name + (site.tagline ? ' · ' + site.tagline : '');
+    document.getElementById('h-name').textContent = site.name;
+    document.getElementById('h-tag').textContent = site.tagline || '';
+    document.getElementById('h-line').textContent = site.heroLine || '';
+    let bg = site.hero;
+    if (!bg) bg = (await api('/api/galleries').catch(() => [])).find((g) => g.cover)?.cover;
+    if (bg) {
+      const img = new Image();
+      img.onload = () => { document.getElementById('hero').style.backgroundImage = `url("${bg}")`; };
+      img.src = bg;
+    }
+  </script>
+</body>
+</html>

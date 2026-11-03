@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sobre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="page">
+    <div class="wrap about">
+      <div class="about-img" id="aimg"></div>
+      <div>
+        <h1>Sobre</h1>
+        <div class="about-text" id="about"></div>
+        <h2 id="contacto" style="margin-top:56px;font-size:clamp(1.8rem,4vw,3rem);text-transform:uppercase;letter-spacing:-.02em;scroll-margin-top:110px">Contacto</h2>
+        <ul class="contacts" id="contacts"></ul>
+        <p style="margin-top:36px"><a class="btn" id="cta">Pedir orçamento</a></p>
+      </div>
+    </div>
+  </main>
+  <footer class="site-foot" data-site-foot></footer>
+  <script type="module">
+    import { api, esc } from '/js/common.js';
+    import { initSite } from '/js/site.js';
+    const site = await initSite(location.hash === '#contacto' ? 'contacto' : 'sobre');
+    document.title = 'Sobre · ' + site.name;
+    document.getElementById('about').textContent = site.about || 'Escreve aqui um texto sobre ti no painel (Site → Sobre mim).';
+    let img = site.hero;
+    if (!img) img = (await api('/api/galleries').catch(() => [])).find((g) => g.cover)?.cover;
+    if (img) document.getElementById('aimg').style.backgroundImage = `url("${img}")`;
+    const c = [];
+    if (site.email) c.push(`<li><span>Email</span><a href="mailto:${esc(site.email)}">${esc(site.email)}</a></li>`);
+    if (site.phone) c.push(`<li><span>Telefone</span><a href="tel:${esc(site.phone.replace(/\s/g, ''))}">${esc(site.phone)}</a></li>`);
+    if (site.instagram) {
+      const h = site.instagram.replace(/^@/, '');
+      c.push(`<li><span>Instagram</span><a href="https://instagram.com/${encodeURIComponent(h)}" target="_blank" rel="noopener">@${esc(h)}</a></li>`);
+    }
+    if (site.location) c.push(`<li><span>Local</span><b>${esc(site.location)}</b></li>`);
+    document.getElementById('contacts').innerHTML = c.join('');
+    const cta = document.getElementById('cta');
+    if (site.email) cta.href = 'mailto:' + site.email + '?subject=' + encodeURIComponent('Pedido de orçamento');
+    else cta.remove();
+    if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+  </script>
+</body>
+</html>
