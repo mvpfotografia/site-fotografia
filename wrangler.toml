@@ -15,4 +15,4 @@ bucket_name = "fotografia-dados"
 [vars]
 # Depois de ligares um domínio ao bucket "fotografia", coloca-o aqui (sem / no fim):
 # PUBLIC_BASE = "https://fotos.teudominio.pt"
-PUBLIC_BASE = ""
+PUBLIC_BASE = "https://fotos.mvpfotografia.com"
