@@ -30,6 +30,8 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0 0 .4em; f
 .site-header.over { position: absolute; left: 0; right: 0; background: linear-gradient(rgba(0,0,0,.45), transparent); }
 .site-header .bar { display: flex; align-items: center; justify-content: space-between; height: 84px; padding: 0 var(--gut); gap: 20px; }
 .logo { font-family: var(--display); font-weight: 900; font-size: 1.6rem; letter-spacing: -.02em; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.logo img { display: block; height: 34px; width: auto; }
+.site-header.over .logo { visibility: hidden; }
 .nav { display: flex; gap: 36px; font-weight: 600; font-size: .95rem; text-transform: uppercase; letter-spacing: .02em; }
 .nav a { text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
 .nav a:hover, .nav a.on { border-bottom-color: #fff; }
@@ -52,6 +54,7 @@ label.lbl { display: block; font-size: .75rem; color: var(--muted); letter-spaci
 .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,.25), rgba(0,0,0,.6)); }
 .hero > * { position: relative; }
 .hero h1 { font-size: clamp(2.6rem, 10.5vw, 10rem); letter-spacing: -.03em; text-transform: uppercase; margin: 0; line-height: .95; text-shadow: 0 4px 40px rgba(0,0,0,.3); overflow-wrap: anywhere; }
+.hero-logo img { display: block; width: clamp(240px, 52vw, 820px); height: auto; filter: drop-shadow(0 4px 30px rgba(0,0,0,.35)); }
 .hero .tag { margin: 28px 0 4px; font-size: clamp(.8rem, 1.4vw, 1.05rem); }
 .hero .line { font-style: italic; font-weight: 600; margin: 0 0 36px; font-size: clamp(.9rem, 1.3vw, 1.05rem); }
 .hero-foot { position: absolute; left: 0; right: 0; bottom: 34px; font-size: .72rem; letter-spacing: .4em; text-transform: uppercase; font-weight: 700; padding: 0 16px; }
@@ -140,7 +143,7 @@ footer.site-foot { padding: 40px var(--gut); font-size: .72rem; letter-spacing: 
 @media (max-width: 760px) {
   :root { --row-h: 140px; --gut: 18px; }
   .site-header .bar { height: 64px; }
-  .logo { font-size: 1.25rem; }
+  .logo img { height: 26px; }
   .menu-toggle { display: block; }
   .nav { position: fixed; inset: 64px 0 auto 0; background: #000; flex-direction: column; gap: 0; padding: 10px 18px 24px; display: none; border-bottom: 1px solid var(--line); }
   .nav.open { display: flex; }

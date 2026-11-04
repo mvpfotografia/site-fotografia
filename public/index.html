@@ -3,16 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fotografia</title>
-  <meta name="description" content="Fotografia de eventos">
+  <title>MVP Fotografia</title>
+  <meta name="description" content="MVP Fotografia · Fotografia de eventos">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <main class="hero" id="hero">
-    <h1 class="fade-in" id="h-name"></h1>
+    <h1 class="fade-in hero-logo"><img src="/img/logo.png" alt="MVP Fotografia" id="h-name" width="1400" height="664"></h1>
     <p class="tag caps fade-in" id="h-tag"></p>
     <p class="line fade-in" id="h-line"></p>
     <a class="btn fade-in" href="/fotos">Ver fotos</a>
@@ -23,7 +26,7 @@
     import { initSite } from '/js/site.js';
     const site = await initSite('inicio', { overlay: true });
     document.title = site.name + (site.tagline ? ' · ' + site.tagline : '');
-    document.getElementById('h-name').textContent = site.name;
+    document.getElementById('h-name').alt = site.name;
     document.getElementById('h-tag').textContent = site.tagline || '';
     document.getElementById('h-line').textContent = site.heroLine || '';
     let bg = site.hero;
