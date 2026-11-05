@@ -3,7 +3,7 @@ import { json, readJSON, writeJSON, SITE_DEFAULTS, HERO_KEY } from '../../../lib
 export const onRequestPut = async ({ request, env }) => {
   const body = await request.json().catch(() => ({}));
   const old = await readJSON(env, 'site.json', {});
-  const site = { heroV: old.heroV };
+  const site = { heroV: old.heroV, photoV: old.photoV };
   for (const k of Object.keys(SITE_DEFAULTS)) site[k] = String(body[k] ?? '').slice(0, k === 'about' ? 5000 : 200);
   await writeJSON(env, 'site.json', site);
   return json(site);

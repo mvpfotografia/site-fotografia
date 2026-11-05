@@ -889,9 +889,18 @@ async function siteModal() {
       <div class="field"><label class="lbl">Subtítulo</label><input name="tagline" placeholder="Capturing the good stuff, saving the vibes!"></div></div>
       <div class="field"><label class="lbl">Frase da página inicial</label><input name="heroLine" placeholder="Descobre as melhores fotografias do teu último evento!"></div>
       <p class="muted" style="font-size:12px;margin:-6px 0 14px">Imagem principal: abre uma galeria, seleciona uma foto e carrega em "Usar como imagem principal do site".${site.heroV ? ` <button type="button" class="btn" id="sf-hero" style="margin-top:8px">Repor a fotografia original</button>` : ""}</p>
-      <div class="field"><label class="lbl">Sobre mim</label><textarea name="about" rows="5"></textarea></div>
+      <label class="lbl">Página Contacto</label>
+      <div class="cphoto">
+        <div class="prev">${site.photo ? `<img src="${esc(site.photo)}" alt="">` : '<span class="muted">Capa de uma galeria</span>'}</div>
+        <div>
+          <label class="btn" style="cursor:pointer">${I.upload}Escolher fotografia<input type="file" id="sf-photo" accept="image/jpeg,image/png,image/webp" hidden></label>
+          ${site.photo ? '<button type="button" class="btn" id="sf-photo-del" style="margin-top:8px">Tirar</button>' : ''}
+          <p class="muted" style="font-size:12px;margin:8px 0 0">De preferência vertical. Sem fotografia, usa a capa de uma galeria.</p>
+        </div>
+      </div>
+      <div class="field"><label class="lbl">Texto sobre ti</label><textarea name="about" rows="4" placeholder="Conta-me como é o teu evento: data, local e o que imaginas. Respondo o mais depressa possível."></textarea></div>
       <div class="row2"><div class="field"><label class="lbl">Email</label><input name="email" type="email"></div>
-      <div class="field"><label class="lbl">Telefone</label><input name="phone"></div></div>
+      <div class="field"><label class="lbl">Telefone / WhatsApp</label><input name="phone" placeholder="912 345 678"></div></div>
       <div class="row2"><div class="field"><label class="lbl">Instagram</label><input name="instagram" placeholder="@utilizador"></div>
       <div class="field"><label class="lbl">Localização</label><input name="location" placeholder="Lisboa, Portugal"></div></div>
     </form>`,
@@ -899,6 +908,29 @@ async function siteModal() {
   });
   const f = $('#sf', m);
   for (const [k, v] of Object.entries(site)) if (f[k]) f[k].value = v;
+  const setPhoto = (url) => {
+    $('.cphoto .prev', m).innerHTML = url ? `<img src="${esc(url)}" alt="">` : '<span class="muted">Capa de uma galeria</span>';
+  };
+  $('#sf-photo', m).onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      const blob = await resize(bmp, 2048);
+      const res = await fetch('/api/admin/contact-photo', { method: 'PUT', headers: { 'content-type': 'image/jpeg' }, body: blob });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Não foi possível carregar a fotografia.');
+      setPhoto(URL.createObjectURL(blob));
+      toast('Fotografia da página Contacto atualizada');
+    } catch (er) { m.fail(er.message); }
+  };
+  $('#sf-photo-del', m)?.addEventListener('click', async (e) => {
+    try {
+      await api('/api/admin/contact-photo', { method: 'DELETE' });
+      e.target.remove();
+      setPhoto(null);
+      toast('A página Contacto volta a usar a capa de uma galeria');
+    } catch (er) { m.fail(er.message); }
+  });
   $('#sf-hero', m)?.addEventListener('click', async (e) => {
     try {
       await api('/api/admin/site', { method: 'DELETE' });

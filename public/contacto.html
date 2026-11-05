@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contacto · MVP Fotografia</title>
+  <meta name="description" content="Contacto · MVP Fotografia · Fotografia de eventos">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="page">
+    <div class="wrap contact">
+      <div class="contact-img" id="cimg"></div>
+      <div class="contact-body">
+        <h1>Contacto</h1>
+        <div class="contact-text" id="about"></div>
+        <div class="cboxes" id="boxes"></div>
+        <p class="contact-loc" id="loc"></p>
+      </div>
+    </div>
+  </main>
+  <footer class="site-foot" data-site-foot></footer>
+  <script type="module">
+    import { api, esc } from '/js/common.js';
+    import { initSite } from '/js/site.js';
+    const ICON = {
+      email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 6 9-6"/></svg>',
+      whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/><path d="M9 9.5c.3 1.8 2.6 4.4 5.5 5.3l1.2-1.3-1.9-1-.8.8c-.9-.4-1.9-1.4-2.3-2.3l.8-.8-1-1.9z"/></svg>',
+      instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6" fill="currentColor"/></svg>',
+    };
+    const site = await initSite('contacto');
+    document.title = 'Contacto · ' + site.name;
+    document.getElementById('about').textContent = site.about || 'Conta-me como é o teu evento: data, local e o que imaginas. Respondo o mais depressa possível.';
+
+    // Fotografia: a escolhida no painel; senão, a capa vertical de uma galeria
+    let img = site.photo;
+    if (!img) {
+      const list = await api('/api/galleries').catch(() => []);
+      const g = list.find((x) => x.covers?.v) || list.find((x) => x.cover);
+      img = g?.covers?.v?.url || g?.cover;
+    }
+    if (img) document.getElementById('cimg').style.backgroundImage = `url("${img}")`;
+
+    // Caixas: só aparecem as que estão preenchidas no painel (Site)
+    const boxes = [];
+    if (site.email) boxes.push(['email', 'Email', site.email, `mailto:${site.email}?subject=${encodeURIComponent('Pedido de informação')}`]);
+    if (site.phone) {
+      let n = site.phone.replace(/[^\d+]/g, '').replace(/^\+/, '').replace(/^00/, '');
+      if (n.length === 9) n = '351' + n; // número português sem indicativo
+      boxes.push(['whatsapp', 'WhatsApp', site.phone, `https://wa.me/${n}`]);
+    }
+    if (site.instagram) {
+      const h = site.instagram.replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/.*$/, '');
+      boxes.push(['instagram', 'Instagram', '@' + h, `https://instagram.com/${encodeURIComponent(h)}`]);
+    }
+    document.getElementById('boxes').innerHTML = boxes.map(([k, label, value, href]) => `
+      <a class="cbox" href="${esc(href)}" ${k === 'email' ? '' : 'target="_blank" rel="noopener"'}>
+        <span class="ci">${ICON[k]}</span>
+        <span class="cl">${label}</span>
+        <span class="cv">${esc(value)}</span>
+      </a>`).join('');
+    if (site.location) document.getElementById('loc').textContent = site.location;
+  </script>
+</body>
+</html>
