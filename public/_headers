@@ -1,0 +1,7 @@
+# O browser confirma sempre se há versão nova (responde rápido com 304 se não houver)
+/js/*
+  Cache-Control: no-cache
+/css/*
+  Cache-Control: no-cache
+/admin
+  Cache-Control: no-cache
