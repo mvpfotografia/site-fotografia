@@ -11,12 +11,17 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-  <link rel="preload" as="image" href="/img/hero.webp">
+  <link rel="preload" as="image" imagesrcset="/img/hero-1280.webp 1280w, /img/hero-1920.webp 1920w, /img/hero-2560.webp 2560w, /img/hero-3840.webp 3840w" imagesizes="(max-aspect-ratio: 16/9) 178vh, 100vw">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <main class="hero" id="hero">
-    <div class="hero-bg" id="hero-bg" aria-hidden="true"></div>
+    <!-- O browser escolhe o tamanho certo para o ecrã (incluindo ecrãs de alta resolução).
+         Em ecrãs mais altos que 16:9 a foto cobre a altura, por isso precisa de 178vh de largura. -->
+    <img class="hero-bg" id="hero-bg" alt="" aria-hidden="true" decoding="async" fetchpriority="high"
+      src="/img/hero-1920.webp"
+      srcset="/img/hero-1280.webp 1280w, /img/hero-1920.webp 1920w, /img/hero-2560.webp 2560w, /img/hero-3840.webp 3840w"
+      sizes="(max-aspect-ratio: 16/9) 178vh, 100vw">
     <h1 class="sr-only" id="h-name">MVP Fotografia</h1>
     <a class="btn fade-in" href="/fotos">Ver fotografias</a>
     <div class="hero-foot" data-site-foot></div>
@@ -24,20 +29,21 @@
   <script type="module">
     import { initSite } from '/js/site.js';
     const layer = document.getElementById('hero-bg');
-    const reveal = (url) => {
-      if (url) layer.style.backgroundImage = `url("${url}")`;
+    const reveal = () => {
       void layer.offsetWidth; // garante que a transição começa do estado inicial
       layer.classList.add('in');
     };
     const site = await initSite('inicio', { overlay: true });
     document.title = site.name;
     document.getElementById('h-name').textContent = site.name;
-    // Sem imagem escolhida no painel, fica a fotografia fixa definida no CSS (/img/hero.webp)
-    const bg = site.hero || '/img/hero.webp';
-    const img = new Image();
-    img.onload = () => reveal(site.hero ? bg : null);
-    img.onerror = () => reveal(null);
-    img.src = bg;
+    if (site.hero) {
+      // Imagem escolhida no painel substitui a fotografia fixa
+      const img = new Image();
+      img.onload = () => { layer.removeAttribute('srcset'); layer.src = site.hero; reveal(); };
+      img.onerror = reveal;
+      img.src = site.hero;
+    } else if (layer.complete && layer.naturalWidth) reveal();
+    else { layer.onload = reveal; layer.onerror = reveal; }
   </script>
 </body>
 </html>
