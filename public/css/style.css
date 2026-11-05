@@ -30,8 +30,9 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0 0 .4em; f
 .site-header.over { position: absolute; left: 0; right: 0; background: linear-gradient(rgba(0,0,0,.45), transparent); }
 .site-header .bar { display: flex; align-items: center; justify-content: space-between; height: 84px; padding: 0 var(--gut); gap: 20px; }
 .logo { font-family: var(--display); font-weight: 900; font-size: 1.6rem; letter-spacing: -.02em; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.logo img { display: block; height: 34px; width: auto; }
-.site-header.over .logo { visibility: hidden; }
+.logo img { display: block; height: 38px; width: auto; transition: opacity .2s; }
+.logo:hover img { opacity: .8; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .nav { display: flex; gap: 36px; font-weight: 600; font-size: .95rem; text-transform: uppercase; letter-spacing: .02em; }
 .nav a { text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
 .nav a:hover, .nav a.on { border-bottom-color: #fff; }
@@ -56,7 +57,6 @@ label.lbl { display: block; font-size: .75rem; color: var(--muted); letter-spaci
 .hero h1 { font-size: clamp(2.6rem, 10.5vw, 10rem); letter-spacing: -.03em; text-transform: uppercase; margin: 0; line-height: .95; text-shadow: 0 4px 40px rgba(0,0,0,.3); overflow-wrap: anywhere; }
 .hero { justify-content: flex-end; padding-bottom: 110px; }
 .hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 60%; background: linear-gradient(transparent, rgba(0,0,0,.75)); }
-.hero-logo img { display: block; width: clamp(220px, 34vw, 560px); height: auto; filter: drop-shadow(0 4px 30px rgba(0,0,0,.35)); }
 .hero .tag { margin: 28px 0 4px; font-size: clamp(.8rem, 1.4vw, 1.05rem); }
 .hero .line { font-style: italic; font-weight: 600; margin: 0 0 36px; font-size: clamp(.9rem, 1.3vw, 1.05rem); }
 .hero-foot { position: absolute; left: 0; right: 0; bottom: 34px; font-size: .72rem; letter-spacing: .4em; text-transform: uppercase; font-weight: 700; padding: 0 16px; }
