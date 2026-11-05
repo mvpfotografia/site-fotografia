@@ -11,17 +11,17 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-  <link rel="preload" as="image" imagesrcset="/img/hero-1280.webp 1280w, /img/hero-1920.webp 1920w, /img/hero-2560.webp 2560w, /img/hero-3840.webp 3840w" imagesizes="(max-aspect-ratio: 16/9) 178vh, 100vw">
+  <link rel="preload" as="image" imagesrcset="/img/porta-1280.webp 1280w, /img/porta-1920.webp 1920w, /img/porta-2560.webp 2560w, /img/porta-3840.webp 3840w" imagesizes="(max-aspect-ratio: 1464/1000) 147vh, 100vw">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <main class="hero" id="hero">
     <!-- O browser escolhe o tamanho certo para o ecrã (incluindo ecrãs de alta resolução).
-         Em ecrãs mais altos que 16:9 a foto cobre a altura, por isso precisa de 178vh de largura. -->
+         Em ecrãs mais estreitos que a foto, ela cobre a altura (foto 3:2, proporção 1,464), por isso precisa de 147vh de largura. -->
     <img class="hero-bg" id="hero-bg" alt="" aria-hidden="true" decoding="async" fetchpriority="high"
-      src="/img/hero-1920.webp"
-      srcset="/img/hero-1280.webp 1280w, /img/hero-1920.webp 1920w, /img/hero-2560.webp 2560w, /img/hero-3840.webp 3840w"
-      sizes="(max-aspect-ratio: 16/9) 178vh, 100vw">
+      src="/img/porta-1920.webp"
+      srcset="/img/porta-1280.webp 1280w, /img/porta-1920.webp 1920w, /img/porta-2560.webp 2560w, /img/porta-3840.webp 3840w"
+      sizes="(max-aspect-ratio: 1464/1000) 147vh, 100vw">
     <h1 class="sr-only" id="h-name">MVP Fotografia</h1>
     <a class="btn fade-in" href="/fotos">Ver fotografias</a>
     <div class="hero-foot" data-site-foot></div>
