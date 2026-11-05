@@ -54,8 +54,8 @@ label.lbl { display: block; font-size: .75rem; color: var(--muted); letter-spaci
 .hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; text-align: center; background: #0a0a0a; padding: 120px 20px calc(104px + env(safe-area-inset-bottom)); overflow: hidden; isolation: isolate; }
 .hero-bg { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: center; transform: scale(1.06); opacity: 0; transition: opacity 1.6s ease, transform 3.2s cubic-bezier(.16,1,.3,1); }
 .hero-bg.in { opacity: 1; transform: none; }
-.hero::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(rgba(0,0,0,.22), transparent 18%, transparent 68%, rgba(0,0,0,.42)); }
-.hero .btn { position: relative; background: none; color: #fff; border: 0; min-height: 0; padding: 10px 2px; letter-spacing: .26em; font-size: .74rem; text-shadow: 0 1px 14px rgba(0,0,0,.35); }
+.hero::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(rgba(0,0,0,.22), transparent 18%, transparent 50%, rgba(0,0,0,.18) 64%, rgba(0,0,0,.45) 80%, rgba(0,0,0,.72)); }
+.hero .btn { position: relative; background: none; color: #fff; border: 0; min-height: 0; padding: 10px 2px; letter-spacing: .26em; font-size: .74rem; text-shadow: 0 1px 2px rgba(0,0,0,.4), 0 1px 16px rgba(0,0,0,.55); }
 .hero .btn::after { content: ''; position: absolute; left: 50%; bottom: 0; width: 34px; height: 1px; background: currentColor; transform: translateX(-50%); transition: width .45s cubic-bezier(.16,1,.3,1); }
 .hero .btn:hover { background: none; color: #fff; }
 .hero .btn:hover::after { width: 100%; }
