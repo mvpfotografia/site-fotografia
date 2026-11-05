@@ -869,7 +869,7 @@ async function siteModal() {
       <div class="row2"><div class="field"><label class="lbl">Nome</label><input name="name"></div>
       <div class="field"><label class="lbl">Subtítulo</label><input name="tagline" placeholder="Capturing the good stuff, saving the vibes!"></div></div>
       <div class="field"><label class="lbl">Frase da página inicial</label><input name="heroLine" placeholder="Descobre as melhores fotografias do teu último evento!"></div>
-      <p class="muted" style="font-size:12px;margin:-6px 0 14px">Imagem principal: abre uma galeria, seleciona uma foto e carrega em "Usar como imagem principal do site".</p>
+      <p class="muted" style="font-size:12px;margin:-6px 0 14px">Imagem principal: abre uma galeria, seleciona uma foto e carrega em "Usar como imagem principal do site".${site.heroV ? ` <button type="button" class="btn" id="sf-hero" style="margin-top:8px">Repor a fotografia original</button>` : ""}</p>
       <div class="field"><label class="lbl">Sobre mim</label><textarea name="about" rows="5"></textarea></div>
       <div class="row2"><div class="field"><label class="lbl">Email</label><input name="email" type="email"></div>
       <div class="field"><label class="lbl">Telefone</label><input name="phone"></div></div>
@@ -880,6 +880,13 @@ async function siteModal() {
   });
   const f = $('#sf', m);
   for (const [k, v] of Object.entries(site)) if (f[k]) f[k].value = v;
+  $('#sf-hero', m)?.addEventListener('click', async (e) => {
+    try {
+      await api('/api/admin/site', { method: 'DELETE' });
+      e.target.remove();
+      toast('Fotografia original reposta na página inicial');
+    } catch (er) { m.fail(er.message); }
+  });
   $('#sf-ok', m).onclick = async () => {
     try {
       await api('/api/admin/site', { method: 'PUT', body: JSON.stringify(Object.fromEntries(new FormData(f))) });
