@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fotos · MVP Fotografia</title>
+  <title>Fotografias · MVP Fotografia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
     const LOCK = '<svg class="ev-lock" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
     const shortDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-PT', { day: 'numeric', month: 'short', year: 'numeric' }).replace(/\./g, '') : '';
     const site = await initSite('fotos');
-    document.title = 'Fotos · ' + site.name;
+    document.title = 'Fotografias · ' + site.name;
     const list = await api('/api/galleries');
     const el = document.getElementById('events');
     el.innerHTML = list.map((g) => `
