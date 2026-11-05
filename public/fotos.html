@@ -41,7 +41,7 @@
         <i></i>
         ${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="">` : ''}
         ${g.hasPassword ? LOCK : ''}
-        <div class="t"><b>${esc(g.title)}</b><span>${esc([shortDate(g.date), g.count + ' fotos'].filter(Boolean).join(' · '))}</span></div>
+        <div class="t"><b>${esc(g.title)}</b><span>${esc(shortDate(g.date))}</span></div>
       </a>`).join('');
     el.querySelectorAll('.event').forEach((a) => {
       size(a, +a.dataset.r || 1.5);
