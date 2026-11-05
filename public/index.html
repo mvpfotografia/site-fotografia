@@ -11,6 +11,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preload" as="image" href="/img/hero.webp">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -22,15 +23,14 @@
     <div class="hero-foot" data-site-foot></div>
   </main>
   <script type="module">
-    import { api } from '/js/common.js';
     import { initSite } from '/js/site.js';
     const site = await initSite('inicio', { overlay: true });
     document.title = site.name + (site.tagline ? ' · ' + site.tagline : '');
     document.getElementById('h-name').alt = site.name;
     document.getElementById('h-tag').textContent = site.tagline || '';
     document.getElementById('h-line').textContent = site.heroLine || '';
-    let bg = site.hero;
-    if (!bg) bg = (await api('/api/galleries').catch(() => [])).find((g) => g.cover)?.cover;
+    // Sem imagem escolhida no painel, fica a fotografia fixa definida no CSS (/img/hero.webp)
+    const bg = site.hero;
     if (bg) {
       const img = new Image();
       img.onload = () => { document.getElementById('hero').style.backgroundImage = `url("${bg}")`; };
