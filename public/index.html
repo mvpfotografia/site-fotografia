@@ -7,7 +7,7 @@
   <meta name="description" content="MVP Fotografia · Fotografia de eventos">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
@@ -16,22 +16,28 @@
 </head>
 <body>
   <main class="hero" id="hero">
+    <div class="hero-bg" id="hero-bg" aria-hidden="true"></div>
     <h1 class="sr-only" id="h-name">MVP Fotografia</h1>
-    <a class="btn fade-in" href="/fotos">Ver fotografias</a>
+    <a class="btn fade-in" href="/fotos">Ver fotografias <span class="arr" aria-hidden="true">→</span></a>
     <div class="hero-foot" data-site-foot></div>
   </main>
   <script type="module">
     import { initSite } from '/js/site.js';
+    const layer = document.getElementById('hero-bg');
+    const reveal = (url) => {
+      if (url) layer.style.backgroundImage = `url("${url}")`;
+      void layer.offsetWidth; // garante que a transição começa do estado inicial
+      layer.classList.add('in');
+    };
     const site = await initSite('inicio', { overlay: true });
     document.title = site.name;
     document.getElementById('h-name').textContent = site.name;
     // Sem imagem escolhida no painel, fica a fotografia fixa definida no CSS (/img/hero.webp)
-    const bg = site.hero;
-    if (bg) {
-      const img = new Image();
-      img.onload = () => { document.getElementById('hero').style.backgroundImage = `url("${bg}")`; };
-      img.src = bg;
-    }
+    const bg = site.hero || '/img/hero.webp';
+    const img = new Image();
+    img.onload = () => reveal(site.hero ? bg : null);
+    img.onerror = () => reveal(null);
+    img.src = bg;
   </script>
 </body>
 </html>
