@@ -14,10 +14,10 @@
 </head>
 <body>
   <main>
+    <h1 class="sr-only">Eventos</h1>
     <div class="events-head">
-      <h1>Eventos</h1>
       <form class="search" id="sf" role="search">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         <input id="q" placeholder="Procurar evento ou código da galeria" autocomplete="off" aria-label="Procurar">
       </form>
     </div>
@@ -34,13 +34,23 @@
     document.title = 'Fotografias · ' + site.name;
     const list = await api('/api/galleries');
     const el = document.getElementById('events');
+    // Cada capa mantém a sua proporção: as linhas têm todas a mesma altura e ocupam a largura toda
+    const size = (a, r) => { a.style.flexGrow = r; a.style.width = `calc(var(--ev-h) * ${r})`; a.querySelector('i').style.paddingBottom = (100 / r) + '%'; };
     el.innerHTML = list.map((g) => `
-      <a class="event" href="/g/${esc(g.slug)}" data-q="${esc((g.title + ' ' + g.slug).toLowerCase())}">
+      <a class="event" href="/g/${esc(g.slug)}" data-q="${esc((g.title + ' ' + g.slug).toLowerCase())}" data-r="${+g.coverRatio || ''}">
+        <i></i>
         ${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="">` : ''}
         ${g.hasPassword ? LOCK : ''}
         <div class="t"><b>${esc(g.title)}</b><span>${esc([shortDate(g.date), g.count + ' fotos'].filter(Boolean).join(' · '))}</span></div>
       </a>`).join('');
-    el.querySelectorAll('img').forEach(fadeImg);
+    el.querySelectorAll('.event').forEach((a) => {
+      size(a, +a.dataset.r || 1.5);
+      const img = a.querySelector('img');
+      if (!img) return;
+      // Galerias antigas ainda sem proporção guardada: usa a da imagem quando carregar
+      if (!+a.dataset.r) img.addEventListener('load', () => img.naturalHeight && size(a, img.naturalWidth / img.naturalHeight));
+      fadeImg(img);
+    });
     const none = document.getElementById('none');
     const q = document.getElementById('q');
     const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
