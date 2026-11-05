@@ -16,9 +16,10 @@
 <body>
   <main class="page">
     <div class="wrap contact">
-      <div class="contact-img" id="cimg"></div>
+      <div class="contact-img"><img id="cimg" alt=""></div>
       <div class="contact-body">
-        <h1>Contacto</h1>
+        <p class="eyebrow" id="eyebrow"></p>
+        <h1>Vamos falar?</h1>
         <div class="contact-text" id="about"></div>
         <div class="cboxes" id="boxes"></div>
         <p class="contact-loc" id="loc"></p>
@@ -27,7 +28,7 @@
   </main>
   <footer class="site-foot" data-site-foot></footer>
   <script type="module">
-    import { api, esc } from '/js/common.js';
+    import { esc } from '/js/common.js';
     import { initSite } from '/js/site.js';
     const ICON = {
       email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 6 9-6"/></svg>',
@@ -38,14 +39,11 @@
     document.title = 'Contacto · ' + site.name;
     document.getElementById('about').textContent = site.about || 'Conta-me como é o teu evento: data, local e o que imaginas. Respondo o mais depressa possível.';
 
-    // Fotografia: a escolhida no painel; senão, a capa vertical de uma galeria
-    let img = site.photo;
-    if (!img) {
-      const list = await api('/api/galleries').catch(() => []);
-      const g = list.find((x) => x.covers?.v) || list.find((x) => x.cover);
-      img = g?.covers?.v?.url || g?.cover;
-    }
-    if (img) document.getElementById('cimg').style.backgroundImage = `url("${img}")`;
+    document.getElementById('eyebrow').textContent = 'Contacto' + (site.tagline ? ' · ' + site.tagline : '');
+    // Fotografia: a escolhida no painel; senão, a fotografia dos noivos da página inicial
+    const pic = document.getElementById('cimg');
+    pic.onload = () => pic.classList.add('in');
+    pic.src = site.photo || '/img/entrada-1280.webp';
 
     // Caixas: só aparecem as que estão preenchidas no painel (Site)
     const boxes = [];
@@ -64,6 +62,7 @@
         <span class="ci">${ICON[k]}</span>
         <span class="cl">${label}</span>
         <span class="cv">${esc(value)}</span>
+        <span class="ca" aria-hidden="true">↗</span>
       </a>`).join('');
     if (site.location) document.getElementById('loc').textContent = site.location;
   </script>

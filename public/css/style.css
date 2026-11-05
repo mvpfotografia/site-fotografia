@@ -102,18 +102,26 @@ label.lbl { display: block; font-size: .75rem; color: var(--muted); letter-spaci
 /* Sobre e contacto */
 .page { padding: 60px 0 100px; }
 /* Contacto: fotografia + texto + caixas */
-.contact { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
-.contact-img { aspect-ratio: 4/5; background: var(--placeholder) center/cover; }
-.contact h1 { font-size: clamp(2.8rem, 7vw, 5.6rem); margin: 0 0 24px; }
-.contact-text { font-size: 1.1rem; line-height: 1.7; white-space: pre-line; color: #e5e5e5; max-width: 56ch; }
-.cboxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 44px; }
-.cbox { display: grid; gap: 6px; padding: 22px 20px; border: 1px solid var(--line); text-decoration: none; transition: background .2s, border-color .2s; }
-.cbox:hover { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.4); }
-.cbox .ci svg { width: 26px; height: 26px; display: block; margin-bottom: 10px; }
-.cbox .cl { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-.cbox .cv { font-weight: 500; overflow-wrap: anywhere; }
-.contact-loc { margin-top: 28px; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-@media (max-width: 860px) { .contact { grid-template-columns: 1fr; gap: 32px; } .contact-img { aspect-ratio: 4/3; } }
+.page:has(.contact) { padding: 24px 0 60px; }
+.contact { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 110px); align-items: center; min-height: calc(100svh - 84px - 110px); }
+.contact-img { aspect-ratio: 4/5; max-height: calc(100svh - 140px); width: 100%; overflow: hidden; background: var(--placeholder); justify-self: start; }
+.contact-img img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transform: scale(1.04); transition: opacity 1.2s ease, transform 2.4s cubic-bezier(.16,1,.3,1); }
+.contact-img img.in { opacity: 1; transform: none; }
+.contact-body { animation: fade 1.1s cubic-bezier(.16,1,.3,1) .2s both; }
+.eyebrow { font-size: .72rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0 0 18px; }
+.contact h1 { font-size: clamp(3rem, 7vw, 6rem); margin: 0 0 28px; }
+.contact-text { font-size: 1.12rem; line-height: 1.75; white-space: pre-line; color: #d9d9d9; max-width: 48ch; }
+.cboxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 48px; }
+.cbox { position: relative; display: grid; gap: 4px; padding: 22px 22px 20px; border: 1px solid var(--line); text-decoration: none; transition: background .25s, border-color .25s; }
+.cbox:hover { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.45); }
+.cbox .ci svg { width: 24px; height: 24px; display: block; margin-bottom: 22px; color: #fff; }
+.cbox .cl { font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.cbox .cv { font: 500 1.3rem/1.2 var(--display); overflow-wrap: anywhere; }
+.cbox .ca { position: absolute; top: 18px; right: 20px; color: var(--muted); transition: transform .25s, color .25s; }
+.cbox:hover .ca { color: #fff; transform: translate(2px, -2px); }
+.contact-loc { margin-top: 32px; font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+@media (max-width: 860px) { .contact { grid-template-columns: 1fr; gap: 36px; min-height: 0; } .contact-img { aspect-ratio: 4/3; max-height: none; } .contact h1 { margin-bottom: 20px; } .cboxes { margin-top: 36px; } }
+@media (prefers-reduced-motion: reduce) { .contact-img img { transition: none; transform: none; } .contact-body { animation: none; } }
 
 footer.site-foot { padding: 40px var(--gut); font-size: .72rem; letter-spacing: .4em; text-transform: uppercase; font-weight: 600; text-align: center; color: var(--muted); }
 
