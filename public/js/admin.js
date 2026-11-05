@@ -491,6 +491,22 @@ async function photosOp(body, redraw = true) {
   return res;
 }
 
+// Capa carregada do computador (não precisa de estar na galeria)
+function uploadCover(o, file) {
+  const slug = S.g.slug;
+  run(async () => {
+    toast(`A carregar capa ${ORIENT[o]}…`);
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const blob = await resize(bmp, 2048);
+    const res = await fetch(`/api/admin/galleries/${slug}/cover/${o}?w=${bmp.width}&h=${bmp.height}`, { method: 'PUT', headers: { 'content-type': 'image/jpeg' }, body: blob });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Não foi possível carregar a capa.');
+    const g = await res.json();
+    if (S.g?.slug === slug) { S.g = { ...g, favorites: S.g.favorites }; renderMain(); }
+    refreshTree();
+    toast(`Capa ${ORIENT[o]} atualizada`);
+  });
+}
+
 // ============ Painel de informação ============
 function renderInfo() {
   const el = $('#info');
@@ -551,10 +567,11 @@ function renderInfo() {
       <h3>Galeria</h3>
       <div class="covers2">${['h', 'v'].map((o) => `
         <figure class="cv-${o}">
-          <div class="prev">${g.covers?.[o] ? `<img src="${u.thumb({ name: g.covers[o].name })}" alt="">` : `<span class="muted">Sem foto ${ORIENT[o]}</span>`}</div>
+          <div class="prev">${g.covers?.[o] ? `<img src="${esc(g.covers[o].ext ? g.coverUrls?.[o]?.url || '' : u.thumb({ name: g.covers[o].name }))}" alt="">` : `<span class="muted">Sem foto ${ORIENT[o]}</span>`}</div>
           <figcaption>Capa ${ORIENT[o]}</figcaption>
+          <label class="cv-up">Carregar outra<input type="file" accept="image/jpeg,image/png,image/webp" data-o="${o}" hidden></label>
         </figure>`).join('')}</div>
-      <p class="muted" style="font-size:12px;margin:-4px 0 14px">Para trocar, seleciona uma foto e carrega em Capa. Uma foto horizontal muda a capa horizontal, uma vertical muda a vertical.</p>
+      <p class="muted" style="font-size:12px;margin:-4px 0 14px">Para trocar, seleciona uma foto e carrega em Capa, ou usa "Carregar outra" para pôr uma foto que não está na galeria.</p>
       <dl class="kv">
         <dt>Endereço</dt><dd>/g/${esc(g.slug)}</dd>
         <dt>Data</dt><dd>${esc(fmtDate(g.date)) || '—'}</dd>
@@ -568,6 +585,7 @@ function renderInfo() {
       </div>
       <p class="muted" style="font-size:12px;margin-top:16px">Clica numa foto para a selecionar. Shift+clique seleciona várias seguidas, Ctrl/⌘+clique escolhe soltas. Duplo clique abre em grande.</p>`;
     $('#i-share').onclick = () => shareModal();
+    el.querySelectorAll('.cv-up input').forEach((inp) => { inp.onchange = () => inp.files[0] && uploadCover(inp.dataset.o, inp.files[0]); });
     $('#i-favs')?.addEventListener('click', () => { navigator.clipboard.writeText(g.favorites.join(', ')); toast('Nomes copiados: cola no Lightroom para filtrar'); });
   }
 }
