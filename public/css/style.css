@@ -116,7 +116,7 @@ label.lbl { display: block; font-size: .75rem; color: var(--muted); letter-spaci
 .cbox:hover { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.45); }
 .cbox .ci svg { width: 24px; height: 24px; display: block; margin-bottom: 22px; color: #fff; }
 .cbox .cl { font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-.cbox .cv { font: 500 1.3rem/1.2 var(--display); overflow-wrap: anywhere; }
+.cbox .cv { font: 500 1.15rem/1.25 var(--display); overflow-wrap: break-word; word-break: break-word; }
 .cbox .ca { position: absolute; top: 18px; right: 20px; color: var(--muted); transition: transform .25s, color .25s; }
 .cbox:hover .ca { color: #fff; transform: translate(2px, -2px); }
 .contact-loc { margin-top: 32px; font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
