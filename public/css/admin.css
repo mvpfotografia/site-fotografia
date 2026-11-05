@@ -226,16 +226,36 @@ label.lbl { display: block; font-size: 12px; color: var(--muted); margin: 0 0 5p
 @media (max-width: 1500px) { .tools .btn .lbl-sm { display: none; } .tools .btn { width: 34px; padding: 0; justify-content: center; } }
 
 /* Capas horizontal e vertical da galeria */
-.info .covers2 { display: grid; grid-template-columns: 3fr 2fr; gap: 10px; margin-bottom: 14px; align-items: end; }
-.info .covers2 figure { margin: 0; }
-.info .covers2 .prev { margin-bottom: 6px; }
-.info .covers2 .cv-h .prev { aspect-ratio: 3/2; }
-.info .covers2 .cv-v .prev { aspect-ratio: 2/3; }
-.info .covers2 .prev img { width: 100%; height: 100%; object-fit: cover; max-width: none; max-height: none; }
-.info .covers2 .prev .muted { font-size: 11px; text-align: center; padding: 6px; }
-.info .covers2 figcaption { font-size: 11px; color: var(--muted, #888); }
+.covers2 { display: grid; grid-template-columns: 3fr 2fr; gap: 10px; margin-bottom: 14px; align-items: end; }
+.covers2 figure { margin: 0; }
+.covers2 .prev { margin-bottom: 6px; }
+.covers2 .cv-h .prev { aspect-ratio: 3/2; }
+.covers2 .cv-v .prev { aspect-ratio: 2/3; }
+.covers2 .prev img { width: 100%; height: 100%; object-fit: cover; max-width: none; max-height: none; }
+.covers2 .prev .muted { font-size: 11px; text-align: center; padding: 6px; }
+.covers2 figcaption { font-size: 11px; color: var(--muted, #888); }
 
-.info .covers2 .cv-up { display: inline-block; margin-top: 4px; font-size: 12px; color: var(--accent); cursor: pointer; }
-.info .covers2 .cv-up:hover { text-decoration: underline; }
+.covers2 .cv-up { display: inline-block; margin-top: 4px; font-size: 12px; color: var(--accent); cursor: pointer; }
+.covers2 .cv-up:hover { text-decoration: underline; }
 @media (max-width: 1400px) { .info { width: 360px; } }
-.info .covers2 .prev { min-height: 0; }
+.covers2 .prev { min-height: 0; }
+
+/* Ordenar galerias */
+.tree-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tsort { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; text-transform: none; letter-spacing: 0; }
+.tsort button { background: none; border: 0; color: var(--muted); font: inherit; font-size: 11px; padding: 3px 8px; cursor: pointer; }
+.tsort button.on { background: var(--panel-2); color: var(--text); }
+.tree-year { font-size: 11px; font-weight: 600; color: var(--muted); padding-top: 10px; padding-bottom: 4px; }
+
+/* Capas nas Definições */
+.covers2 .prev { background: var(--bg); border-radius: 6px; display: grid; place-items: center; overflow: hidden; }
+.covers2 figcaption { font-size: 12px; color: var(--muted); }
+
+/* Menu ⋯ */
+.pop { position: fixed; z-index: 60; width: 300px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.4); padding: 6px; }
+.pop-info { display: grid; gap: 2px; padding: 8px 10px 10px; border-bottom: 1px solid var(--line); margin-bottom: 4px; font-size: 12px; color: var(--muted); }
+.pop-info b { color: var(--text); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pop button, .pop a { display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: 0; border-radius: 6px; padding: 9px 10px; color: var(--text); font: inherit; font-size: 13px; text-align: left; text-decoration: none; cursor: pointer; }
+.pop button:hover, .pop a:hover { background: var(--panel-2); }
+.pop svg { width: 16px; height: 16px; flex: none; }
+.pop .pi { width: 16px; font-size: 12px; font-weight: 600; text-align: center; }

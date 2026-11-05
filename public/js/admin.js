@@ -103,7 +103,6 @@ function renderShell() {
         <div class="side-foot" id="foot"></div>
       </aside>
       <section class="main" id="main"></section>
-      <aside class="info hidden" id="info"></aside>
     </div>`;
   $('#menu').onclick = () => $('#side').classList.toggle('open');
   $('#site').onclick = siteModal;
@@ -140,7 +139,9 @@ function renderTree() {
   const el = $('#tree');
   if (!el) return;
   const { folders, galleries } = S.tree;
-  const gl = Object.values(galleries).sort((a, b) => (b.date || '').localeCompare(a.date || '') || a.title.localeCompare(b.title));
+  const sortBy = store.get('treeSort', 'date');
+  const byTitle = (a, b) => a.title.localeCompare(b.title, 'pt', { sensitivity: 'base', numeric: true });
+  const gl = Object.values(galleries).sort(sortBy === 'az' ? byTitle : (a, b) => (b.date || '').localeCompare(a.date || '') || byTitle(a, b));
   const countIn = (id) => gl.filter((g) => g.folder === id).length + folders.filter((f) => f.parent === id).reduce((s, f) => s + countIn(f.id), 0);
   const html = [];
   const walk = (parent, depth) => {
@@ -152,18 +153,23 @@ function renderTree() {
         <span class="acts"><button data-act="newg" title="Nova galeria aqui">＋</button><button data-act="edit" title="Renomear">✎</button><button data-act="del" title="Apagar pasta">✕</button></span></div>`);
       if (open) walk(f.id, depth + 1);
     }
+    let year = null;
     for (const g of gl.filter((x) => (x.folder || null) === parent)) {
+      const y = (g.date || '').slice(0, 4) || 'Sem data';
+      if (sortBy === 'date' && y !== year) { year = y; html.push(`<div class="tree-year" style="padding-left:${14 + depth * 16}px">${y}</div>`); }
       html.push(`<div class="node ${S.g?.slug === g.slug ? 'active' : ''}" data-gallery="${g.slug}" draggable="true" style="padding-left:${8 + depth * 16 + 16}px">
         <span class="ic" style="${g.cover ? `background-image:url('${g.cover}')` : ''}">${g.cover ? '' : I.img}</span>
         <span class="nm" title="${esc(g.title)}">${esc(g.title)}</span><span class="ct">${g.count}</span></div>`);
     }
   };
-  html.push('<div class="tree-label node" data-folder="" style="height:auto;cursor:default">Galerias</div>');
+  html.push(`<div class="tree-label node" data-folder="" style="height:auto;cursor:default"><span>Galerias</span><span class="tsort" title="Ordenar galerias"><button type="button" data-sort="date" class="${sortBy === 'date' ? 'on' : ''}">Por ano</button><button type="button" data-sort="az" class="${sortBy === 'az' ? 'on' : ''}">A–Z</button></span></div>`);
   walk(null, 0);
   if (!gl.length && !folders.length) html.push('<div class="muted" style="padding:8px 14px;font-size:13px">Ainda sem galerias. Cria a primeira!</div>');
   el.innerHTML = html.join('');
 
   el.onclick = (e) => {
+    const sb = e.target.closest('[data-sort]');
+    if (sb) { store.set('treeSort', sb.dataset.sort); return renderTree(); }
     const n = e.target.closest('.node');
     if (!n) return;
     const act = e.target.closest('[data-act]')?.dataset.act;
@@ -224,7 +230,6 @@ const costText = (bytes) => `${Math.max(0, ((bytes - 10e9) / 1e9) * 0.015).toFix
 
 // ============ Painel inicial ============
 function renderDashboard() {
-  $('#info').classList.add('hidden');
   const gl = Object.values(S.tree.galleries);
   const photos = gl.reduce((s, g) => s + g.count, 0);
   const bytes = gl.reduce((s, g) => s + (g.bytes || 0), 0) * 1.1;
@@ -283,10 +288,11 @@ function renderMain() {
     <div class="tools">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="all"> <span class="selcount" id="selc"></span></label>
       <span class="sep"></span>
-      <button class="btn" data-bulk id="t-cover" title="Definir como capa">${I.star}<span class="lbl-sm">Capa</span></button>
+      <button class="btn" data-bulk id="t-cover" title="Definir como capa da galeria">${I.star}<span class="lbl-sm">Definir como capa</span></button>
       <button class="btn" data-bulk id="t-move" title="Mover para outra galeria">${I.move}<span class="lbl-sm">Mover</span></button>
       <button class="btn" data-bulk id="t-dl" title="Descarregar originais">${I.dl}<span class="lbl-sm">Descarregar</span></button>
       <button class="btn danger" data-bulk id="t-del" title="Apagar (Delete)">${I.trash}<span class="lbl-sm">Apagar</span></button>
+      <button class="btn icon" data-bulk id="t-more" title="Mais (legenda, original, imagem principal do site)">⋯</button>
       <span class="spacer"></span>
       <select id="t-filter" title="Mostrar">
         <option value="all">Todas as fotos</option>
@@ -309,6 +315,7 @@ function renderMain() {
   $('#files').onchange = (e) => { addUploads([...e.target.files]); e.target.value = ''; };
   $('#b-share').onclick = () => shareModal();
   $('#b-set').onclick = () => settingsModal();
+  $('.badges').onclick = (e) => { if (e.target.closest('#b-favs')) { navigator.clipboard.writeText(S.g.favorites.join(', ')); toast('Nomes copiados: cola no Lightroom para filtrar'); } };
   $('#all').onchange = (e) => { S.sel = e.target.checked ? new Set(visible().map((p) => p.name)) : new Set(); updateSel(); };
   $('#t-cover').onclick = () => run(async () => {
     const p = S.g.photos.find((x) => x.name === [...S.sel][0]);
@@ -318,6 +325,7 @@ function renderMain() {
   $('#t-move').onclick = () => moveModal();
   $('#t-dl').onclick = () => downloadSelected();
   $('#t-del').onclick = () => deleteSelected();
+  $('#t-more').onclick = (e) => moreMenu(e.currentTarget);
   $('#t-filter').onchange = (e) => { S.filter = e.target.value; S.sel.clear(); drawGrid(); };
   $('#t-sort').onchange = (e) => run(async () => {
     const v = e.target.value;
@@ -348,7 +356,7 @@ function badgesHTML() {
         ${g.hasPassword ? '<span class="badge">🔒 Palavra-passe</span>' : '<span class="badge warn">Sem palavra-passe</span>'}
         ${g.allowDownload ? '<span class="badge">Downloads ativos</span>' : ''}
         ${g.expires ? `<span class="badge ${Date.parse(g.expires) < Date.now() ? 'warn' : ''}">Expira ${esc(fmtDate(g.expires))}</span>` : ''}
-        ${g.favorites.length ? `<span class="badge" style="color:var(--heart)">♥ ${g.favorites.length} favoritas do cliente</span>` : ''}`;
+        ${g.favorites.length ? `<button type="button" class="badge" id="b-favs" title="Copiar nomes (para filtrar no Lightroom)" style="color:var(--heart);cursor:pointer">♥ ${g.favorites.length} favoritas · copiar nomes</button>` : ''}`;
 }
 const updateBadges = () => { const b = $('.badges'); if (b && S.g) b.innerHTML = badgesHTML(); };
 
@@ -388,9 +396,10 @@ function updateSel() {
   $('#all').indeterminate = n > 0 && n < visible().length;
   document.querySelectorAll('[data-bulk]').forEach((b) => { b.disabled = !n; });
   $('#t-cover').disabled = n !== 1;
+  $('#t-more').disabled = n !== 1;
+  if (n !== 1) document.querySelector('.pop')?.remove();
   $('#t-dl').disabled = !n;
   document.querySelectorAll('#ogrid .ot[data-name]').forEach((t) => t.classList.toggle('sel', S.sel.has(t.dataset.name)));
-  renderInfo();
 }
 
 function setupGridEvents() {
@@ -494,7 +503,7 @@ async function photosOp(body, redraw = true) {
 // Capa carregada do computador (não precisa de estar na galeria)
 function uploadCover(o, file) {
   const slug = S.g.slug;
-  run(async () => {
+  return run(async () => {
     toast(`A carregar capa ${ORIENT[o]}…`);
     const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
     const blob = await resize(bmp, 2048);
@@ -507,87 +516,75 @@ function uploadCover(o, file) {
   });
 }
 
-// ============ Painel de informação ============
-function renderInfo() {
-  const el = $('#info');
-  if (!S.g) return el.classList.add('hidden');
-  el.classList.remove('hidden');
+// ============ Capas (nas Definições) ============
+function coversHTML(g) {
+  const u = urls(g);
+  return ['h', 'v'].map((o) => `
+    <figure class="cv-${o}">
+      <div class="prev">${g.covers?.[o] ? `<img src="${esc(g.covers[o].ext ? g.coverUrls?.[o]?.url || '' : u.thumb({ name: g.covers[o].name }))}" alt="">` : `<span class="muted">Sem foto ${ORIENT[o]}</span>`}</div>
+      <figcaption>Capa ${ORIENT[o]}</figcaption>
+      <label class="cv-up">Carregar outra<input type="file" accept="image/jpeg,image/png,image/webp" data-o="${o}" hidden></label>
+    </figure>`).join('');
+}
+function bindCovers(box) {
+  box.innerHTML = coversHTML(S.g);
+  box.querySelectorAll('.cv-up input').forEach((inp) => {
+    inp.onchange = async () => { if (inp.files[0]) { await uploadCover(inp.dataset.o, inp.files[0]); bindCovers(box); } };
+  });
+}
+
+// ============ Menu ⋯ de uma fotografia ============
+function moreMenu(btn) {
+  const old = document.querySelector('.pop');
+  if (old) return old.remove();
+  const p = S.g.photos.find((x) => x.name === [...S.sel][0]);
+  if (!p) return;
   const u = urls(S.g);
-  const sel = S.g.photos.filter((p) => S.sel.has(p.name));
-  if (sel.length === 1) {
-    const p = sel[0];
-    el.innerHTML = `
-      <h3>Fotografia</h3>
-      <div class="prev"><img src="${u.web(p)}" alt=""></div>
-      <dl class="kv">
-        <dt>Ficheiro</dt><dd title="${esc(p.name)}">${esc(p.name)}</dd>
-        <dt>Dimensões</dt><dd>${p.w} × ${p.h}</dd>
-        <dt>Tamanho</dt><dd>${fmtBytes(p.size)}</dd>
-        <dt>Carregada</dt><dd>${esc(fmtDate(p.added))}</dd>
-        <dt>Cliente</dt><dd>${S.g.favorites.includes(p.name) ? '<span style="color:var(--heart)">♥ Favorita</span>' : '—'}</dd>
-      </dl>
-      <div class="field"><label class="lbl">Legenda</label><textarea id="cap" rows="3" placeholder="Visível para quem vê a galeria">${esc(p.caption || '')}</textarea></div>
-      <div class="stack">
-        <button class="btn" id="i-cover" ${isCover(p) ? 'disabled' : ''}>${I.star}${isCover(p) ? `É a capa ${ORIENT[orient(p)]}` : `Definir como capa ${ORIENT[orient(p)]}`}</button>
-        <button class="btn" id="i-hero">${I.img}Usar como imagem principal do site</button>
-        <a class="btn" href="${u.original(p)}" target="_blank">${I.eye}Abrir original</a>
-        <button class="btn danger" id="i-del">${I.trash}Apagar</button>
-      </div>`;
-    const cap = $('#cap');
-    cap.onchange = () => run(async () => {
-      await api(`/api/admin/galleries/${S.g.slug}/photos`, { method: 'POST', body: JSON.stringify({ op: 'caption', name: p.name, caption: cap.value }) });
-      p.caption = cap.value;
-      toast('Legenda guardada');
-      const t = document.querySelector(`.ot[data-name="${CSS.escape(p.name)}"]`);
-      if (t) t.outerHTML = tileHTML(p);
-    });
-    $('#i-cover').onclick = () => run(async () => { await photosOp({ op: 'cover', name: p.name }); toast(`Capa ${ORIENT[orient(p)]} atualizada`); });
-    $('#i-hero').onclick = () => run(async () => {
+  const pop = document.createElement('div');
+  pop.className = 'pop';
+  pop.innerHTML = `
+    <div class="pop-info"><b title="${esc(p.name)}">${esc(p.name)}</b><span>${p.w} × ${p.h} · ${fmtBytes(p.size)} · carregada ${esc(fmtDate(p.added))}</span>${S.g.favorites.includes(p.name) ? '<span style="color:var(--heart)">♥ Favorita do cliente</span>' : ''}</div>
+    <button data-a="cap"><span class="pi">Aa</span>${p.caption ? 'Editar legenda' : 'Adicionar legenda'}</button>
+    <a href="${u.original(p)}" target="_blank" data-a="orig">${I.eye}Abrir original</a>
+    <button data-a="hero">${I.img}Usar como imagem principal do site</button>`;
+  const r = btn.getBoundingClientRect();
+  pop.style.top = r.bottom + 6 + 'px';
+  pop.style.left = Math.max(8, Math.min(r.left, innerWidth - 310)) + 'px';
+  document.body.append(pop);
+  const close = () => { pop.remove(); document.removeEventListener('mousedown', out); };
+  const out = (e) => { if (!pop.contains(e.target) && !btn.contains(e.target)) close(); };
+  document.addEventListener('mousedown', out);
+  pop.onclick = (e) => {
+    const act = e.target.closest('[data-a]')?.dataset.a;
+    if (!act) return;
+    close();
+    if (act === 'cap') captionModal(p);
+    if (act === 'hero') run(async () => {
+      if (!confirm('Trocar a fotografia da página inicial do site por esta?')) return;
       await api(`/api/admin/galleries/${S.g.slug}/photos`, { method: 'POST', body: JSON.stringify({ op: 'hero', name: p.name }) });
       toast('Imagem principal do site atualizada');
     });
-    $('#i-del').onclick = deleteSelected;
-  } else if (sel.length > 1) {
-    el.innerHTML = `
-      <h3>${sel.length} fotografias selecionadas</h3>
-      <dl class="kv"><dt>Tamanho total</dt><dd>${fmtBytes(sel.reduce((s, p) => s + (p.size || 0), 0))}</dd>
-      <dt>Favoritas</dt><dd>${sel.filter((p) => S.g.favorites.includes(p.name)).length}</dd></dl>
-      <p class="muted" style="font-size:13px">Dica: arrasta as fotos selecionadas para outra posição, ou para uma galeria na barra lateral para as mover.</p>
-      <div class="stack">
-        <button class="btn" id="i-move">${I.move}Mover para…</button>
-        <button class="btn" id="i-dl">${I.dl}Descarregar</button>
-        <button class="btn danger" id="i-del">${I.trash}Apagar ${sel.length}</button>
-      </div>`;
-    $('#i-move').onclick = moveModal;
-    $('#i-dl').onclick = downloadSelected;
-    $('#i-del').onclick = deleteSelected;
-  } else {
-    const g = S.g;
-    el.innerHTML = `
-      <h3>Galeria</h3>
-      <div class="covers2">${['h', 'v'].map((o) => `
-        <figure class="cv-${o}">
-          <div class="prev">${g.covers?.[o] ? `<img src="${esc(g.covers[o].ext ? g.coverUrls?.[o]?.url || '' : u.thumb({ name: g.covers[o].name }))}" alt="">` : `<span class="muted">Sem foto ${ORIENT[o]}</span>`}</div>
-          <figcaption>Capa ${ORIENT[o]}</figcaption>
-          <label class="cv-up">Carregar outra<input type="file" accept="image/jpeg,image/png,image/webp" data-o="${o}" hidden></label>
-        </figure>`).join('')}</div>
-      <p class="muted" style="font-size:12px;margin:-4px 0 14px">Para trocar, seleciona uma foto e carrega em Capa, ou usa "Carregar outra" para pôr uma foto que não está na galeria.</p>
-      <dl class="kv">
-        <dt>Endereço</dt><dd>/g/${esc(g.slug)}</dd>
-        <dt>Data</dt><dd>${esc(fmtDate(g.date)) || '—'}</dd>
-        <dt>Fotografias</dt><dd>${g.photos.length}</dd>
-        <dt>Favoritas</dt><dd>${g.favorites.length}</dd>
-        <dt>Criada</dt><dd>${esc(fmtDate(g.created))}</dd>
-      </dl>
-      <div class="stack">
-        <button class="btn primary" id="i-share">${I.share}Partilhar com o cliente</button>
-        ${g.favorites.length ? `<button class="btn" id="i-favs">♥ Copiar nomes das favoritas</button>` : ''}
-      </div>
-      <p class="muted" style="font-size:12px;margin-top:16px">Clica numa foto para a selecionar. Shift+clique seleciona várias seguidas, Ctrl/⌘+clique escolhe soltas. Duplo clique abre em grande.</p>`;
-    $('#i-share').onclick = () => shareModal();
-    el.querySelectorAll('.cv-up input').forEach((inp) => { inp.onchange = () => inp.files[0] && uploadCover(inp.dataset.o, inp.files[0]); });
-    $('#i-favs')?.addEventListener('click', () => { navigator.clipboard.writeText(g.favorites.join(', ')); toast('Nomes copiados: cola no Lightroom para filtrar'); });
-  }
+  };
+}
+function captionModal(p) {
+  const m = modal({
+    title: 'Legenda',
+    body: `<p class="muted" style="font-size:12px;margin:0 0 10px">${esc(p.name)}</p><textarea id="cap" rows="4" placeholder="Visível para quem vê a galeria">${esc(p.caption || '')}</textarea>`,
+    foot: '<button class="btn" data-close>Cancelar</button><button class="btn primary" id="cap-ok">Guardar</button>',
+  });
+  const cap = $('#cap', m);
+  cap.focus();
+  $('#cap-ok', m).onclick = async () => {
+    try {
+      await api(`/api/admin/galleries/${S.g.slug}/photos`, { method: 'POST', body: JSON.stringify({ op: 'caption', name: p.name, caption: cap.value }) });
+      p.caption = cap.value;
+      const t = document.querySelector(`.ot[data-name="${CSS.escape(p.name)}"]`);
+      if (t) t.outerHTML = tileHTML(p);
+      updateSel();
+      m.close();
+      toast('Legenda guardada');
+    } catch (er) { m.fail(er.message); }
+  };
 }
 
 // ============ Ações sobre fotos ============
@@ -750,6 +747,9 @@ function settingsModal(tab = 0) {
     tabs: ['Geral', 'Acesso e privacidade', 'Cliente', 'Avançado'],
     body: `<form id="gs">
       <div data-pane="0">
+        <label class="lbl">Capas</label>
+        <div class="covers2" id="gs-covers"></div>
+        <p class="muted" style="font-size:12px;margin:-4px 0 16px">Também podes selecionar uma foto da galeria e carregar em "Definir como capa": uma horizontal muda a capa horizontal, uma vertical muda a vertical.</p>
         <div class="field"><label class="lbl">Título</label><input name="title" required value="${esc(g.title)}"></div>
         <div class="row2">
           <div class="field"><label class="lbl">Data do trabalho</label><input name="date" type="date" value="${esc(g.date || '')}"></div>
@@ -782,6 +782,7 @@ function settingsModal(tab = 0) {
     foot: '<button class="btn" data-close>Cancelar</button><button class="btn primary" id="gs-ok">Guardar</button>',
   });
   m.showTab(tab);
+  bindCovers($('#gs-covers', m));
   const f = $('#gs', m);
   $('#gen', m).onclick = () => { f.password.value = randomPassword(); };
   $('#gdel', m).onclick = () => run(async () => {
