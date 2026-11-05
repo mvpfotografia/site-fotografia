@@ -1,4 +1,4 @@
-import { json, err, getMeta, isAdmin, isExpired, canView, readJSON, publicBase, webPrefix, origPrefix, coverKey } from '../../../../lib/core.js';
+import { json, err, getMeta, isAdmin, isExpired, canView, readJSON, publicBase, webPrefix, origPrefix, coverKey, coverSet } from '../../../../lib/core.js';
 
 export const onRequestGet = async ({ request, env, params }) => {
   const meta = await getMeta(env, params.slug);
@@ -17,6 +17,7 @@ export const onRequestGet = async ({ request, env, params }) => {
     hasPassword: !!meta.hash,
     count: meta.photos.length,
     cover: meta.cover && (meta.public || !meta.hash) ? `${publicBase(env)}/${coverKey(meta.slug)}?v=${meta.coverV || 0}` : null,
+    covers: meta.public || !meta.hash ? coverSet(env, meta) : {},
   };
   if (!(await canView(request, env, meta))) return json({ ...info, locked: true });
   const favs = info.favorites ? await readJSON(env, `galleries/${meta.slug}/favorites.json`, []) : [];

@@ -1,4 +1,4 @@
-import { json, err, getMeta, saveMeta, hashPassword, adminMeta, readIndex, randomKey, SLUG_RE } from '../../../../lib/core.js';
+import { json, err, getMeta, saveMeta, hashPassword, adminMeta, readIndex, randomKey, SLUG_RE, fillCovers } from '../../../../lib/core.js';
 
 // Criar ou atualizar uma galeria. Só os campos enviados são alterados.
 export const onRequestPost = async ({ request, env }) => {
@@ -30,6 +30,7 @@ export const onRequestPost = async ({ request, env }) => {
     } else Object.assign(meta, await hashPassword(b.password.trim()));
   }
   meta.title ||= slug;
+  if (meta.photos.length) await fillCovers(env, meta);
   await saveMeta(env, meta);
   return json(adminMeta(env, meta));
 };

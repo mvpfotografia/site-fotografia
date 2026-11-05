@@ -39,9 +39,16 @@
       showGallery(g);
     }
 
+    // Capa horizontal em ecrãs largos, vertical em ecrãs altos (telemóvel); o CSS escolhe
+    function coverVars(g) {
+      const c = g.covers || {};
+      const h = c.h?.url || g.cover || c.v?.url, v = c.v?.url || g.cover || c.h?.url;
+      return h ? `--cover-h:url('${esc(h)}');--cover-v:url('${esc(v)}')` : '';
+    }
+
     function showLock(g) {
       app.innerHTML = `
-        <div class="lock" style="${g.cover ? `background-image:url('${esc(g.cover)}')` : ''}">
+        <div class="lock" style="${coverVars(g)}">
           <div>
             <h1 class="g-title">${esc(g.title)}</h1>
             <div class="g-meta">${esc(fmtDate(g.date))}</div>
@@ -74,7 +81,7 @@
       if (g.protect) document.addEventListener('contextmenu', (e) => { if (e.target.tagName === 'IMG') e.preventDefault(); });
       const meta = [fmtDate(g.date), `${g.photos.length} fotografias`].filter(Boolean).map(esc).join(' &nbsp;·&nbsp; ');
       const head = g.cover
-        ? `<section class="g-hero" style="background-image:url('${esc(g.cover)}')"><div><h1 class="g-title">${esc(g.title)}</h1><div class="g-meta">${meta}</div></div></section>`
+        ? `<section class="g-hero" style="${coverVars(g)}"><div><h1 class="g-title">${esc(g.title)}</h1><div class="g-meta">${meta}</div></div></section>`
         : `<section class="g-head"><h1 class="g-title">${esc(g.title)}</h1><div class="g-meta">${meta}</div></section>`;
       app.innerHTML = `
         ${head}

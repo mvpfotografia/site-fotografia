@@ -224,3 +224,13 @@ label.lbl { display: block; font-size: 12px; color: var(--muted); margin: 0 0 5p
 .tools select { max-width: 170px; }
 .tools .btn { padding: 0 10px; }
 @media (max-width: 1500px) { .tools .btn .lbl-sm { display: none; } .tools .btn { width: 34px; padding: 0; justify-content: center; } }
+
+/* Capas horizontal e vertical da galeria */
+.info .covers2 { display: grid; grid-template-columns: 3fr 2fr; gap: 10px; margin-bottom: 14px; align-items: end; }
+.info .covers2 figure { margin: 0; }
+.info .covers2 .prev { margin-bottom: 6px; }
+.info .covers2 .cv-h .prev { aspect-ratio: 3/2; }
+.info .covers2 .cv-v .prev { aspect-ratio: 2/3; }
+.info .covers2 .prev img { width: 100%; height: 100%; object-fit: cover; max-width: none; max-height: none; }
+.info .covers2 .prev .muted { font-size: 11px; text-align: center; padding: 6px; }
+.info .covers2 figcaption { font-size: 11px; color: var(--muted, #888); }

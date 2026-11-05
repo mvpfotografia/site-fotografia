@@ -310,7 +310,11 @@ function renderMain() {
   $('#b-share').onclick = () => shareModal();
   $('#b-set').onclick = () => settingsModal();
   $('#all').onchange = (e) => { S.sel = e.target.checked ? new Set(visible().map((p) => p.name)) : new Set(); updateSel(); };
-  $('#t-cover').onclick = () => run(async () => { await photosOp({ op: 'cover', name: [...S.sel][0] }); toast('Capa atualizada'); });
+  $('#t-cover').onclick = () => run(async () => {
+    const p = S.g.photos.find((x) => x.name === [...S.sel][0]);
+    await photosOp({ op: 'cover', name: p.name });
+    toast(`Capa ${ORIENT[orient(p)]} atualizada`);
+  });
   $('#t-move').onclick = () => moveModal();
   $('#t-dl').onclick = () => downloadSelected();
   $('#t-del').onclick = () => deleteSelected();
@@ -348,12 +352,18 @@ function badgesHTML() {
 }
 const updateBadges = () => { const b = $('.badges'); if (b && S.g) b.innerHTML = badgesHTML(); };
 
+// Capas: uma horizontal e uma vertical; o site usa a que encaixa melhor em cada sítio
+const orient = (p) => ((p.w || 3) >= (p.h || 2) ? 'h' : 'v');
+const ORIENT = { h: 'horizontal', v: 'vertical' };
+const isCover = (p) => S.g.covers?.[orient(p)]?.name === p.name;
+const coverTag = (p) => (isCover(p) ? `<span title="Capa ${ORIENT[orient(p)]}">Capa ${orient(p) === 'h' ? '▭' : '▯'}</span>` : '');
+
 function tileHTML(p) {
   const fav = S.g.favorites.includes(p.name);
   return `<div class="ot ${S.sel.has(p.name) ? 'sel' : ''}" data-name="${esc(p.name)}" draggable="true">
     <div class="box"><img loading="lazy" src="${urls(S.g).thumb(p)}" alt=""></div>
     <span class="ck">✓</span>
-    <span class="tags">${S.g.cover === p.name ? '<span>Capa</span>' : ''}${fav ? '<span class="h">♥</span>' : ''}${p.caption ? '<span title="Tem legenda">Aa</span>' : ''}</span>
+    <span class="tags">${coverTag(p)}${fav ? '<span class="h">♥</span>' : ''}${p.caption ? '<span title="Tem legenda">Aa</span>' : ''}</span>
     <div class="fn">${esc(p.name)}</div></div>`;
 }
 
@@ -502,7 +512,7 @@ function renderInfo() {
       </dl>
       <div class="field"><label class="lbl">Legenda</label><textarea id="cap" rows="3" placeholder="Visível para quem vê a galeria">${esc(p.caption || '')}</textarea></div>
       <div class="stack">
-        <button class="btn" id="i-cover" ${S.g.cover === p.name ? 'disabled' : ''}>${I.star}${S.g.cover === p.name ? 'É a capa' : 'Definir como capa'}</button>
+        <button class="btn" id="i-cover" ${isCover(p) ? 'disabled' : ''}>${I.star}${isCover(p) ? `É a capa ${ORIENT[orient(p)]}` : `Definir como capa ${ORIENT[orient(p)]}`}</button>
         <button class="btn" id="i-hero">${I.img}Usar como imagem principal do site</button>
         <a class="btn" href="${u.original(p)}" target="_blank">${I.eye}Abrir original</a>
         <button class="btn danger" id="i-del">${I.trash}Apagar</button>
@@ -515,7 +525,7 @@ function renderInfo() {
       const t = document.querySelector(`.ot[data-name="${CSS.escape(p.name)}"]`);
       if (t) t.outerHTML = tileHTML(p);
     });
-    $('#i-cover').onclick = () => run(async () => { await photosOp({ op: 'cover', name: p.name }); toast('Capa atualizada'); });
+    $('#i-cover').onclick = () => run(async () => { await photosOp({ op: 'cover', name: p.name }); toast(`Capa ${ORIENT[orient(p)]} atualizada`); });
     $('#i-hero').onclick = () => run(async () => {
       await api(`/api/admin/galleries/${S.g.slug}/photos`, { method: 'POST', body: JSON.stringify({ op: 'hero', name: p.name }) });
       toast('Imagem principal do site atualizada');
@@ -539,7 +549,12 @@ function renderInfo() {
     const g = S.g;
     el.innerHTML = `
       <h3>Galeria</h3>
-      <div class="prev">${g.cover ? `<img src="${u.web({ name: g.cover })}" alt="">` : '<span class="muted">Sem capa</span>'}</div>
+      <div class="covers2">${['h', 'v'].map((o) => `
+        <figure class="cv-${o}">
+          <div class="prev">${g.covers?.[o] ? `<img src="${u.thumb({ name: g.covers[o].name })}" alt="">` : `<span class="muted">Sem foto ${ORIENT[o]}</span>`}</div>
+          <figcaption>Capa ${ORIENT[o]}</figcaption>
+        </figure>`).join('')}</div>
+      <p class="muted" style="font-size:12px;margin:-4px 0 14px">Para trocar, seleciona uma foto e carrega em Capa. Uma foto horizontal muda a capa horizontal, uma vertical muda a vertical.</p>
       <dl class="kv">
         <dt>Endereço</dt><dd>/g/${esc(g.slug)}</dd>
         <dt>Data</dt><dd>${esc(fmtDate(g.date)) || '—'}</dd>

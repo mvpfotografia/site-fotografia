@@ -6,6 +6,6 @@ export const onRequestGet = async ({ env }) => {
   const list = Object.values(idx.galleries)
     .filter((g) => g.public && g.count && !isExpired(g))
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-    .map(({ slug, title, date, hasPassword, cover, coverRatio, count }) => ({ slug, title, date, hasPassword, cover, coverRatio, count }));
+    .map(({ slug, title, date, hasPassword, cover, coverRatio, covers, count }) => ({ slug, title, date, hasPassword, cover, coverRatio, covers: covers || {}, count }));
   return json(list, 200, { 'cache-control': 'public, max-age=60' });
 };

@@ -36,13 +36,23 @@
     const el = document.getElementById('events');
     // Cada capa mantém a sua proporção: as linhas têm todas a mesma altura e ocupam a largura toda
     const size = (a, r) => { a.style.flexGrow = r; a.style.width = `calc(var(--ev-h) * ${r})`; a.querySelector('i').style.paddingBottom = (100 / r) + '%'; };
-    el.innerHTML = list.map((g) => `
-      <a class="event" href="/g/${esc(g.slug)}" data-q="${esc((g.title + ' ' + g.slug).toLowerCase())}" data-r="${+g.coverRatio || ''}">
+    // Cada galeria tem capa horizontal e vertical: alterna-se com este ritmo para as linhas
+    // misturarem fotos largas e estreitas. Se só houver uma, usa-se essa.
+    const RHYTHM = ['h', 'v', 'v', 'h', 'v', 'h', 'h', 'v'];
+    const pickCover = (g, i) => {
+      const want = RHYTHM[i % RHYTHM.length], c = g.covers || {};
+      return c[want] || c[want === 'h' ? 'v' : 'h'] || (g.cover ? { url: g.cover, ratio: g.coverRatio } : null);
+    };
+    el.innerHTML = list.map((g, i) => {
+      const c = pickCover(g, i);
+      return `
+      <a class="event" href="/g/${esc(g.slug)}" data-q="${esc((g.title + ' ' + g.slug).toLowerCase())}" data-r="${+c?.ratio || ''}">
         <i></i>
-        ${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="">` : ''}
+        ${c ? `<img loading="lazy" src="${esc(c.url)}" alt="">` : ''}
         ${g.hasPassword ? LOCK : ''}
         <div class="t"><b>${esc(g.title)}</b><span>${esc(shortDate(g.date))}</span></div>
-      </a>`).join('');
+      </a>`;
+    }).join('');
     el.querySelectorAll('.event').forEach((a) => {
       size(a, +a.dataset.r || 1.5);
       const img = a.querySelector('img');

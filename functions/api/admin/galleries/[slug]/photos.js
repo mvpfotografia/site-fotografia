@@ -1,4 +1,4 @@
-import { json, err, getMeta, saveMeta, setCover, readJSON, writeJSON, adminMeta, webPrefix, origPrefix, NAME_RE, HERO_KEY } from '../../../../../lib/core.js';
+import { json, err, getMeta, saveMeta, setCover, fillCovers, readJSON, writeJSON, adminMeta, webPrefix, origPrefix, NAME_RE, HERO_KEY } from '../../../../../lib/core.js';
 
 // Operações sobre as fotos de uma galeria
 //  add      { photos:[{name,w,h,size}] }   regista fotos já carregadas
@@ -24,7 +24,6 @@ export const onRequestPost = async ({ request, env, params }) => {
         if (old) Object.assign(old, entry, { caption: old.caption });
         else meta.photos.push(entry);
       }
-      if (!meta.cover && meta.photos.length) await setCover(env, meta, meta.photos[0].name);
       break;
     }
     case 'order': {
@@ -61,7 +60,6 @@ export const onRequestPost = async ({ request, env, params }) => {
       for (const n of del) keys.push(`${webPrefix(meta)}/thumb/${n}`, `${webPrefix(meta)}/web/${n}`, `${origPrefix(meta)}/${n}`);
       for (let i = 0; i < keys.length; i += 900) await env.BUCKET.delete(keys.slice(i, i + 900));
       meta.photos = meta.photos.filter((p) => !del.has(p.name));
-      if (del.has(meta.cover)) await setCover(env, meta, meta.photos[0]?.name);
       await dropFavorites(env, meta.slug, del);
       break;
     }
@@ -87,8 +85,7 @@ export const onRequestPost = async ({ request, env, params }) => {
       }
       const moved = new Set(list);
       meta.photos = meta.photos.filter((p) => !moved.has(p.name));
-      if (moved.has(meta.cover)) await setCover(env, meta, meta.photos[0]?.name);
-      if (!dest.cover && dest.photos.length) await setCover(env, dest, dest.photos[0].name);
+      await fillCovers(env, dest);
       await dropFavorites(env, meta.slug, moved);
       await saveMeta(env, dest);
       break;
@@ -96,6 +93,7 @@ export const onRequestPost = async ({ request, env, params }) => {
     default:
       return err('Operação desconhecida.');
   }
+  await fillCovers(env, meta);
   await saveMeta(env, meta);
   return json(adminMeta(env, meta));
 };
