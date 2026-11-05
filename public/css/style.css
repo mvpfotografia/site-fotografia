@@ -52,9 +52,11 @@ label.lbl { display: block; font-size: .75rem; color: var(--muted); letter-spaci
 /* Página inicial: fotografia em ecrã inteiro */
 .hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #111 url('/img/hero.webp') center/cover no-repeat; padding: 120px 20px 90px; overflow: hidden; }
 .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,.25), rgba(0,0,0,.6)); }
-.hero > * { position: relative; }
+.hero > * { position: relative; z-index: 1; }
 .hero h1 { font-size: clamp(2.6rem, 10.5vw, 10rem); letter-spacing: -.03em; text-transform: uppercase; margin: 0; line-height: .95; text-shadow: 0 4px 40px rgba(0,0,0,.3); overflow-wrap: anywhere; }
-.hero-logo img { display: block; width: clamp(240px, 52vw, 820px); height: auto; filter: drop-shadow(0 4px 30px rgba(0,0,0,.35)); }
+.hero { justify-content: flex-end; padding-bottom: 110px; }
+.hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 60%; background: linear-gradient(transparent, rgba(0,0,0,.75)); }
+.hero-logo img { display: block; width: clamp(220px, 34vw, 560px); height: auto; filter: drop-shadow(0 4px 30px rgba(0,0,0,.35)); }
 .hero .tag { margin: 28px 0 4px; font-size: clamp(.8rem, 1.4vw, 1.05rem); }
 .hero .line { font-style: italic; font-weight: 600; margin: 0 0 36px; font-size: clamp(.9rem, 1.3vw, 1.05rem); }
 .hero-foot { position: absolute; left: 0; right: 0; bottom: 34px; font-size: .72rem; letter-spacing: .4em; text-transform: uppercase; font-weight: 700; padding: 0 16px; }
