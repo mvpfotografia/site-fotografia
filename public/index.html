@@ -17,18 +17,14 @@
 <body>
   <main class="hero" id="hero">
     <h1 class="sr-only" id="h-name">MVP Fotografia</h1>
-    <p class="tag caps fade-in" id="h-tag"></p>
-    <p class="line fade-in" id="h-line"></p>
-    <a class="btn fade-in" href="/fotos">Ver fotos</a>
+    <a class="btn fade-in" href="/fotos">Ver fotografias</a>
     <div class="hero-foot" data-site-foot></div>
   </main>
   <script type="module">
     import { initSite } from '/js/site.js';
     const site = await initSite('inicio', { overlay: true });
-    document.title = site.name + (site.tagline ? ' · ' + site.tagline : '');
+    document.title = site.name;
     document.getElementById('h-name').textContent = site.name;
-    document.getElementById('h-tag').textContent = site.tagline || '';
-    document.getElementById('h-line').textContent = site.heroLine || '';
     // Sem imagem escolhida no painel, fica a fotografia fixa definida no CSS (/img/hero.webp)
     const bg = site.hero;
     if (bg) {
